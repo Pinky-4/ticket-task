@@ -15,9 +15,9 @@ use App\Http\Controllers\TicketController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+//Route::get('/', function () {
+//    return view('welcome');
+//});
 
 Auth::routes();
 
@@ -33,5 +33,5 @@ Route::group(['middleware' => 'auth'], function () {
     });
 });
 
-Route::get('/ticket/add', [TicketController::class, 'create'])->name('ticket.add');
+Route::get('/', [TicketController::class, 'create'])->name('ticket.add');
 Route::post('/ticket/store', [TicketController::class, 'store'])->name('ticket.store');

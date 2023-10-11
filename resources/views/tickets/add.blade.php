@@ -5,7 +5,11 @@
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card">
-                    <div class="card-header">Add Ticket <a href="{{ route('ticket.list') }}" class="btn btn-primary">Back</a>
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-md-10">Add Ticket</div>
+                            <div class="col-md-2"><a href="{{ route('ticket.list') }}" class="btn btn-primary">Back</a></div>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="inner-box">

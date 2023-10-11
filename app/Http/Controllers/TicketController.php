@@ -32,9 +32,9 @@ class TicketController extends Controller
     {
         $html = $builder->columns([
             ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex', 'title' => "No", 'render' => null, 'orderable' => false, 'searchable' => false],
-            ['data' => 'created_date', 'name' => 'created_date', 'title' => "Created Date"],
             ['data' => 'title', 'name' => 'title', 'title' => "Title"],
             ['data' => 'status', 'name' => 'status', 'title' => "Status"],
+            ['data' => 'created_date', 'name' => 'created_date', 'title' => "Created Date"],
             ['data' => 'action', 'name' => 'action', 'title' => "Action", 'orderable' => false, 'searchable' => false],
         ])->ajax([
             'url' => route('ticket.datatable.list'),
@@ -93,7 +93,7 @@ class TicketController extends Controller
      */
     public function store(CreateTicketRequest $request)
     {
-        
+
         $ticket_data = new Ticket();
         $ticket_data->title = $request->title;
         $ticket_data->description = $request->description;
@@ -128,13 +128,16 @@ class TicketController extends Controller
         $ticket_data->save();
 
         $user = User::find($request->assignee);
-        if($request->assignee != $old_assigned_user_id){
-            $user->notify((new AssigneeChange($ticket_data)));
+        try {
+            if($request->assignee != $old_assigned_user_id){
+                $user->notify((new AssigneeChange($ticket_data)));
+            }
+            if($old_status != $request->status){
+                $user->notify((new StatusChange($ticket_data)));
+            }
+        }catch (\Exception $exception){
+            return redirect()->route('ticket.list')->with('error', "Ticket update but Notification not send,Please set mail credential!");
         }
-        if($old_status != $request->status){
-            $user->notify((new StatusChange($ticket_data)));
-        }
-       
         return redirect()->route('ticket.list')->with('success', 'Booking Updated successfully.');
     }
 
