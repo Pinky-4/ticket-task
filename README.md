@@ -42,10 +42,24 @@ DB_PASSWORD=
 
 Migrate and seed database with table and predefined data
 
-    php artisan migrate
+    php artisan migrate --seed
 
 In Terminal run below command for run project for Development Only
 
 Fronted : ```npm run dev``` or ```npm run build```
 
 Laravel : ```php artisan serve```
+
+### Admin user credential
+
+    email:admin@gmail.com
+    password:12345678
+
+I am created some staff user and password is ```12345678```
+
+###Action for user
+- normal user is able to register or create ticket, view ticket own ticket
+
+- staff user is able to change statue and data when admin assign some ticket then show only assignee ticket
+
+- Admin can perform every action view all tickets,edit status,assignee,etc...
