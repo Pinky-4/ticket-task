@@ -15,9 +15,9 @@ use App\Http\Controllers\TicketController;
 |
 */
 
-//Route::get('/', function () {
-//    return view('welcome');
-//});
+Route::get('/', function () {
+    return view('welcome');
+});
 
 Auth::routes();
 
@@ -25,6 +25,8 @@ Auth::routes();
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/home', [TicketController::class, 'index'])->name('home');
     Route::name('ticket.')->prefix('ticket')->group(function () {
+        Route::get('/add', [TicketController::class, 'create'])->name('add');
+        Route::post('/store', [TicketController::class, 'store'])->name('store');
         Route::get('/list', [TicketController::class, 'index'])->name('list');
         Route::post('/datatable-list', [TicketController::class, 'dataTableList'])->name('datatable.list');
         Route::get('/edit/{id}', [TicketController::class, 'edit'])->name('edit');
@@ -33,5 +35,4 @@ Route::group(['middleware' => 'auth'], function () {
     });
 });
 
-Route::get('/', [TicketController::class, 'create'])->name('ticket.add');
-Route::post('/ticket/store', [TicketController::class, 'store'])->name('ticket.store');
+

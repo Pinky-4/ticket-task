@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateTicketRequest;
 use App\Http\Requests\EditTicketRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Html\Builder;
 use Yajra\DataTables\DataTables;
 use App\Models\Ticket;
@@ -57,7 +58,11 @@ class TicketController extends Controller
      */
     public function dataTableList(Request $request)
     {
-        $ticket_data = Ticket::orderBy('id', 'DESC');
+        if (Auth::user()->role == 0){
+            $ticket_data = Ticket::where('user_id',Auth::id())->orderBy('id', 'DESC');
+        }else{
+            $ticket_data = Ticket::orderBy('id', 'DESC');
+        }
 
         $ticket_data->when(request('search'), function ($q) {
             return $q->where('title', 'LIKE', '%' . request('search') . '%')->orWhere('description', 'LIKE', '%' . request('search') . '%');
@@ -65,9 +70,16 @@ class TicketController extends Controller
 
         return DataTables::of($ticket_data)
             ->addColumn('action', function ($ticket_data) {
-                $str = '<a class="btn btn-primary" href=' . route('ticket.edit', $ticket_data->id) . '>Edit</a>&nbsp;&nbsp
+                if (Auth::user()->role == 0){
+                    $str = '<a class="btn btn-primary" href=' . route('ticket.show', $ticket_data->id) . '>Show</a>
+                ';
+                }else{
+                    $str = '<a class="btn btn-primary" href=' . route('ticket.edit', $ticket_data->id) . '>Edit</a>&nbsp;&nbsp
                 <a class="btn btn-primary" href=' . route('ticket.show', $ticket_data->id) . '>Show</a>
                 ';
+                }
+
+
                 return $str;
             })
             ->editColumn('status', function ($ticket_data) {
@@ -97,6 +109,7 @@ class TicketController extends Controller
         $ticket_data = new Ticket();
         $ticket_data->title = $request->title;
         $ticket_data->description = $request->description;
+        $ticket_data->user_id = Auth::id();
         $ticket_data->save();
         return redirect()->route('ticket.list')->with('success', 'Tickets created successfully.');
     }
@@ -108,7 +121,7 @@ class TicketController extends Controller
     {
         //
         $ticket_data = Ticket::where('id', $id)->first();
-        $users = User::all();
+        $users = User::where('role',1)->get();
         return view('tickets.edit', compact('ticket_data','users'));
     }
 
