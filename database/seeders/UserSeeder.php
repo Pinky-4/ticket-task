@@ -17,13 +17,24 @@ class UserSeeder extends Seeder
         User::factory()->create([
             'name' => 'Admin User',
             'email' => 'admin@gmail.com',
-            'role' => 2,
+            'role' => '2',
             'password' => Hash::make('12345678'),
         ]);
 
         // Create five staff users
         User::factory(5)->create([
-            'role' => 1,
+            'role' => '1',
+            'password' => Hash::make('12345678'),
+        ]);
+
+        User::factory(1)->create([
+            'email' =>'user@gmail.com',
+            'role' => '0',
+            'password' => Hash::make('12345678'),
+        ]);
+        User::factory(1)->create([
+            'email' =>'user2@gmail.com',
+            'role' => '0',
             'password' => Hash::make('12345678'),
         ]);
     }

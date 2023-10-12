@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateTicketRequest;
 use App\Http\Requests\EditTicketRequest;
+use App\Notifications\TicketCreate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Html\Builder;
@@ -58,10 +59,15 @@ class TicketController extends Controller
      */
     public function dataTableList(Request $request)
     {
-        if (Auth::user()->role == 0){
+        $user = Auth::user();
+        if ($user->role == '0'){
             $ticket_data = Ticket::where('user_id',Auth::id())->orderBy('id', 'DESC');
         }else{
-            $ticket_data = Ticket::orderBy('id', 'DESC');
+            if ($user->role == '2'){
+                $ticket_data = Ticket::orderBy('id', 'DESC');
+            }else{
+                $ticket_data = Ticket::where('assigned_user_id',$user->id)->orderBy('id', 'DESC');
+            }
         }
 
         $ticket_data->when(request('search'), function ($q) {
@@ -70,7 +76,7 @@ class TicketController extends Controller
 
         return DataTables::of($ticket_data)
             ->addColumn('action', function ($ticket_data) {
-                if (Auth::user()->role == 0){
+                if (Auth::user()->role == '0'){
                     $str = '<a class="btn btn-primary" href=' . route('ticket.show', $ticket_data->id) . '>Show</a>
                 ';
                 }else{
@@ -111,6 +117,12 @@ class TicketController extends Controller
         $ticket_data->description = $request->description;
         $ticket_data->user_id = Auth::id();
         $ticket_data->save();
+        try {
+            $user = User::where('role','2')->first();
+            $user->notify((new TicketCreate($ticket_data)));
+        }catch (\Exception $exception){
+            return redirect()->route('ticket.list')->with('error', "Ticket created but Notification not send,Please set mail credential!");
+        }
         return redirect()->route('ticket.list')->with('success', 'Tickets created successfully.');
     }
 
@@ -121,7 +133,7 @@ class TicketController extends Controller
     {
         //
         $ticket_data = Ticket::where('id', $id)->first();
-        $users = User::where('role',1)->get();
+        $users = User::where('role','1')->get();
         return view('tickets.edit', compact('ticket_data','users'));
     }
 
@@ -137,15 +149,16 @@ class TicketController extends Controller
         $ticket_data->title = $request->title;
         $ticket_data->description = $request->description;
         $ticket_data->status = $request->status;
-        $ticket_data->assigned_user_id = $request->assignee;
+        $ticket_data->assigned_user_id = $request->assignee ?? $old_assigned_user_id;
+        $user_id = $ticket_data->user_id;
         $ticket_data->save();
 
-        $user = User::find($request->assignee);
+        $user = User::find($user_id);
         try {
             if($request->assignee != $old_assigned_user_id){
                 $user->notify((new AssigneeChange($ticket_data)));
             }
-            if($old_status != $request->status){
+            if($request->assignee == $old_assigned_user_id && $old_status != $request->status){
                 $user->notify((new StatusChange($ticket_data)));
             }
         }catch (\Exception $exception){

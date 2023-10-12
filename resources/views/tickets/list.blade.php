@@ -9,7 +9,7 @@
                         <div class="row">
                             <div class="col-md-10">Tickets</div>
                             <div class="col-md-2">
-                                @if(\Illuminate\Support\Facades\Auth::user()->role == 0)
+                                @if(\Illuminate\Support\Facades\Auth::user()->role == '0')
                                     <a href="{{ route('ticket.add') }}" class="btn btn-primary float-right">create</a>
                                 @endif
                             </div>

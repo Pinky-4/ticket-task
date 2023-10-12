@@ -37,7 +37,7 @@
                                             <div class="form-group">
                                                 <strong>Status:</strong>
                                                 <select class="form-select form-control" name="status">
-                                                    <option value="">Select Status</option>
+                                                    <option value="" disabled>Select Status</option>
                                                     <option value="1"
                                                         {{ !empty($ticket_data->status) && $ticket_data->status == '1' ? 'selected' : '' }}>
                                                         Pending
@@ -53,7 +53,7 @@
                                         <div class="col-xs-12 col-sm-12 col-md-12 mt-3">
                                             <div class="form-group">
                                                 <strong>Assign ticket:</strong>
-                                                <select class="form-select form-control" name="assignee">
+                                                <select class="form-select form-control" {{ \Illuminate\Support\Facades\Auth::user()->role != '2'?'disabled':'' }} name="assignee">
                                                     <option disabled selected>Select user</option>
                                                     @foreach ($users as $user)
                                                         <option value="{{ $user->id }}"

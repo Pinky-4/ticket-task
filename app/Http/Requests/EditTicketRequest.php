@@ -26,7 +26,7 @@ class EditTicketRequest extends FormRequest
             'title' => 'required|max:255',
             'description' => 'required',
             'status' => 'required',
-            'assignee' => 'required'
+//            'assignee' => 'required'
         ];
     }
 }
